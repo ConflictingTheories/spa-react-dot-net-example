@@ -6,6 +6,15 @@ Example ASP.NET Single Page Application of a list.
 * ASP.NET Core (C#)
 * Local Storage (SQLite DB)
 
+
+#### Usage & Running
+* Open Visual Studio 2019
+  * Open Solution File (.sln)
+    * Install SQLite Entity Framework Driver
+    * Build Solution
+    * Start (will open new browser window)
+
+
 #### Additional Notes
 * Done for a job interview assessment
 
