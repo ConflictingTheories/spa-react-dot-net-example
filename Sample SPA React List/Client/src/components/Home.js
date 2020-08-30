@@ -8,6 +8,7 @@ export class Home extends Component {
     super(props);
     this.state = {
       categories: [],
+      sum: 0,
       chosenCat: null,
       ContentDescription: "",
       ContentValue: 0,
@@ -24,20 +25,37 @@ export class Home extends Component {
     this.fetchCategories();
   }
 
+  /**
+   * @name updateDescription
+   * @function Event Listener
+   * @param {Event} evt
+   */
   updateDescription(evt) {
     this.setState({ ContentDescription: evt.target.value });
   }
 
+  /**
+   * @function Event Listener
+   * @param {Event} evt Event Object
+   */
   updateValue(evt) {
     this.setState({ ContentValue: evt.target.value });
   }
 
+  /**
+   * @function Event listener
+   * @param {Event} evt Event Object (onChange)
+   * @param {int} id Id of Category
+   */
   updateCategory(evt, id) {
     this.setState({
       chosenCat: { CategoryName: evt.target.value, Id: id || null },
     });
   }
 
+  /**
+   * @function Renders the Insurance Contents Table + Inputs
+   */
   renderTable() {
     const categories = this.state.categories;
     return (
@@ -81,6 +99,12 @@ export class Home extends Component {
             )}
           </tbody>
         </table>
+        <hr />
+        <div>
+          <h4>
+            Total: <strong>${this.state.sum.toFixed(2)}</strong>
+          </h4>
+        </div>
         <hr />
         <div>
           <label>
@@ -141,11 +165,28 @@ export class Home extends Component {
     );
   }
 
+  /**
+   * @function Fetches and populates the contents and categories
+   */
   async fetchCategories() {
     const data = await ApiHelper.fetchCategories();
-    this.setState({ categories: data, loading: false });
+    let sum = data
+      .map((x) =>
+        x.contents.length > 0
+          ? x.contents.reduce((s, x) => {
+              return { contentValue: s.contentValue + x.contentValue };
+            })
+          : { contentValue: 0 }
+      )
+      .reduce((s, x) => {
+        return { contentValue: s.contentValue + x.contentValue };
+      }).contentValue;
+    this.setState({ categories: data, loading: false, sum });
   }
 
+  /**
+   * @function Adds content to Category Chosen (Also Makes new Category if non-existant)
+   */
   async addContent() {
     const dataObj = {
       ContentDescription: this.state.ContentDescription,
@@ -157,6 +198,10 @@ export class Home extends Component {
     this.fetchCategories();
   }
 
+  /**
+   * @function Deletes content from Category
+   * @param {int} id - The content id to remove
+   */
   async deleteContent(id) {
     await ApiHelper.deleteContent(id);
     this.fetchCategories();
